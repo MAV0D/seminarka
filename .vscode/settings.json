@@ -1,0 +1,39 @@
+{
+    "cSpell.words": [
+        "Bílá",
+        "bílý",
+        "Černá",
+        "cerne",
+        "černý",
+        "dama",
+        "Dáma",
+        "Figur",
+        "figura",
+        "figury",
+        "Gratuluji",
+        "hrac",
+        "mozny",
+        "naplnit",
+        "Neplatný",
+        "Opakujte",
+        "platny",
+        "pocet",
+        "pohyb",
+        "poradi",
+        "pozice",
+        "Pozice",
+        "puvod",
+        "remízou",
+        "skončila",
+        "soucet",
+        "Souřadnice",
+        "strana",
+        "Vyhral",
+        "Vyhrál",
+        "vypsani",
+        "zakladni"
+    ],
+    "files.associations": {
+        "iostream": "cpp"
+    }
+}
