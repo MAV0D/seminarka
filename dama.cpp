@@ -51,10 +51,18 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
                     char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
                     char tahY = j - 1 + '1';    
-                    if((i+1) < 7 && (j-1) > 0) {
+                    if((i+1) <= 7 && (j-1) >= 0) {
                         string tah = string(1, puvodX)+puvodY+tahX+tahY;
                         mozneTahy.push_back(tah);
-                        cout << tah << "   ";
+                    }
+                } else if (pole[i+1][j-1].pole=='o' && pole[i+2][j-2].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j - 1 + '1';    
+                    if((i+1) <= 7 && (j-1) >= 0) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
                     }
                 }
                 if (pole[i+1][j+1].pole=='.') {
@@ -62,12 +70,20 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
                     char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
                     char tahY = j + 1 + '1';    
-                    if((i+1) >7 || (j+1) > 7) continue;
-                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                    mozneTahy.push_back(tah);
-                    cout << tah << "   ";
+                    if((i+1) <= 7 && (j+1) <= 7) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
+                    }
+                } else if (pole[i+1][j+1].pole=='o' && pole[i+2][j+2].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j + 1 + '1';    
+                    if((i+1) <= 7 && (j+1) <= 7) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
+                    }
                 }
-                // dodělat detekci přeskakování
             }
             if (pole[i][j].pole=='o' && hrac == 1) {
                 if (pole[i-1][j-1].pole=='.') {
@@ -75,10 +91,18 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
                     char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
                     char tahY = j - 1 + '1';    
-                    if((i+1) < 7 && (j-1) >= 0) {
+                    if((i-1) >= 0 && (j-1) >= 0) {
                         string tah = string(1, puvodX)+puvodY+tahX+tahY;
                         mozneTahy.push_back(tah);
-                        cout << tah << "   ";
+                    }
+                } else if (pole[i-1][j-1].pole=='x' && pole[i-2][j-2].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j - 1 + '1';
+                    if((i-1) >= 0 && (j-1) >= 0) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
                     }
                 }
                 if (pole[i-1][j+1].pole=='.') {
@@ -86,16 +110,23 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
                     char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
                     char tahY = j + 1 + '1';    
-                    if((i+1) >7 || (j+1) > 7) continue;
-                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                    mozneTahy.push_back(tah);
-                    cout << tah << "   ";
+                    if((i-1) >= 0 && (j+1) <= 7) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
+                    }
+                } else if (pole[i-1][j+1].pole=='x' && pole[i-2][j+2].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j + 1 + '1';
+                    if((i-1) >= 0 && (j+1) <= 7) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
+                    }
                 }
-                // dodělat detekci přeskakování
             }
         }
     }
-    cout << endl;
     return mozneTahy;
 }
 
@@ -167,12 +198,23 @@ void pocetFigur() {
 
 
 int main() {
+    srand(time(0));
     zakladniPozice();
     do {
-        mozneTahy();
+        vector<string> tahy = mozneTahy();
+        // if (hrac==0)
+            for (int i=0;i<tahy.size();i++) {
+                cout << tahy[i] << "   ";
+            }
+        cout << endl;
         vypsatPole();
         string tah;
-        cin >> tah;
+        if (hrac==0) cin >> tah;
+        else {
+            int n = rand()%tahy.size();
+            tah = tahy[n];
+            cout << tah << endl;
+        }
         pohyb(tah);
         
         for (int i=0;i<8;i++) {
