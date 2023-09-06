@@ -41,17 +41,62 @@ void zakladniPozice() {         // nastaví hru do základní pozice o 12 kamene
     }
 }
 
-vector<string> mozneTahyVPozici() {
+vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozici a vrítí je formou vectoru stringů
     vector<string> mozneTahy;
     for (int i=0;i<8;i++) {
         for (int j=0;j<8;j++) {
-            if (pole[i][j].pole=='x') {
-                if (pole[i+1][j+1].pole=='.') {
-                    // vygenerovat string tahu, přidat ho do vectoru, poté ověřit i druhou stranu
+            if (pole[i][j].pole=='x' && hrac == 0) {
+                if (pole[i+1][j-1].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j - 1 + '1';    
+                    if((i+1) < 7 && (j-1) > 0) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
+                        cout << tah << "   ";
+                    }
                 }
+                if (pole[i+1][j+1].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j + 1 + '1';    
+                    if((i+1) >7 || (j+1) > 7) continue;
+                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                    mozneTahy.push_back(tah);
+                    cout << tah << "   ";
+                }
+                // dodělat detekci přeskakování
+            }
+            if (pole[i][j].pole=='o' && hrac == 1) {
+                if (pole[i-1][j-1].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j - 1 + '1';    
+                    if((i+1) < 7 && (j-1) >= 0) {
+                        string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                        mozneTahy.push_back(tah);
+                        cout << tah << "   ";
+                    }
+                }
+                if (pole[i-1][j+1].pole=='.') {
+                    char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                    char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                    char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                    char tahY = j + 1 + '1';    
+                    if((i+1) >7 || (j+1) > 7) continue;
+                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                    mozneTahy.push_back(tah);
+                    cout << tah << "   ";
+                }
+                // dodělat detekci přeskakování
             }
         }
     }
+    cout << endl;
+    return mozneTahy;
 }
 
 bool moznyTah(string tah)  {                // ověří, zda je zadaný tah platný, pokud ano, vrátí 1
@@ -123,12 +168,13 @@ void pocetFigur() {
 
 int main() {
     zakladniPozice();
-    vypsatPole();
     do {
+        mozneTahy();
+        vypsatPole();
         string tah;
         cin >> tah;
         pohyb(tah);
-        vypsatPole();
+        
         for (int i=0;i<8;i++) {
             for (int j=0;j<8;j++) {
                 if ((pole[i][j].X=='H' && pole[i][j].pole=='x') || (pole[i][j].X=='A' && pole[i][j].pole=='o')) {
