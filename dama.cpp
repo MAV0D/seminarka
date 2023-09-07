@@ -134,10 +134,15 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     char tahY = j + 1 + '1';
                     bool preskoceno = 0;
                     while (tahX<='H' && tahY<='8') {
-                        if (pole[tahX][tahY].pole!='.') {   // potřeba upravit tahX a tahY na int
+                        if (pole[tahX-'A'][tahY-'1'].pole=='o') {
                             if (preskoceno) break;
-                            else preskoceno = 1;
-                        } else {
+                            else {
+                                preskoceno = 1;
+                                tahX++;
+                                tahY++;
+                            }
+                        } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
+                        else {
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX++;
@@ -148,10 +153,15 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     tahY = j - 1 + '1';
                     preskoceno = 0;
                     while (tahX<='H' && tahY>='1') {
-                        if (pole[tahX][tahY].pole!='.') {
+                        if (pole[tahX-'A'][tahY-'1'].pole=='o') {
                             if (preskoceno) break;
-                            else preskoceno = 1;
-                        } else {
+                            else {
+                                preskoceno = 1;
+                                tahX++;
+                                tahY++;
+                            }
+                        } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
+                        else {
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX++;
@@ -162,10 +172,15 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     tahY = j - 1 + '1';
                     preskoceno = 0;
                     while (tahX>='A' && tahY>='0') {
-                        if (pole[tahX][tahY].pole!='.') {
+                        if (pole[tahX-'A'][tahY-'1'].pole=='o') {
                             if (preskoceno) break;
-                            else preskoceno = 1;
-                        } else {
+                            else {
+                                preskoceno = 1;
+                                tahX++;
+                                tahY++;
+                            }
+                        } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
+                        else {
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX--;
@@ -176,10 +191,15 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     tahY = j + 1 + '1';
                     preskoceno = 0;
                     while (tahX>='A' && tahY<='8') {
-                        if (pole[tahX][tahY].pole!='.') {
+                        if (pole[tahX-'A'][tahY-'1'].pole=='o') {
                             if (preskoceno) break;
-                            else preskoceno = 1;
-                        } else {
+                            else {
+                                preskoceno = 1;
+                                tahX++;
+                                tahY++;
+                            }
+                        } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
+                        else {
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX--;
@@ -240,10 +260,27 @@ bool moznyTah(string tah)  {                // ověří, zda je zadaný tah plat
     return moznyTah;
 }
 
-void pohyb(string tah) {            // tah = např. B2C1
-    bool platnyTah;
-    platnyTah = moznyTah(tah);
-    if (platnyTah == 0) cout << "Neplatný tah. Opakujte. \n";
+int pohyb(string tah, vector<string> mozneTahy) {
+    for (int i=0;i<mozneTahy.size();i++) {
+        if (tah==mozneTahy[i]) {
+            int puvodX = tah[0] - 'A';
+            int puvodY = tah[1]- '0' - 1;
+            int tahX = tah[2] - 'A';
+            int tahY = tah[3] - '0' - 1;
+            pole[tahX][tahY].pole = pole[puvodX][puvodY].pole; // malý posun při braní
+            pole[puvodX][puvodY].pole = '.';
+            if (abs(puvodX-tahX)>1) {
+                for (int j=1;j<abs(puvodX-tahX);j++) {
+                    if (pole[puvodX+j][puvodY+j].pole=='.') continue;
+                    if (pole[puvodX+j][puvodY+j].pole!=pole[puvodX][puvodY].pole) pole[puvodX+j][puvodY+j].pole = '.';
+                }
+            }
+            hrac = (hrac?0:1);
+            return 1;
+        }
+    }
+    cout << "Neplatný tah, hrajte znovu.";
+    return 0;
 }
 
 void pocetFigur() {
@@ -264,12 +301,10 @@ void pocetFigur() {
 
 int main() {
     srand(time(0));
-    // zakladniPozice();
-    pole[4][4].pole = 'x';
-    pole[4][4].dama = 1;
+    zakladniPozice();
     do {
         vector<string> tahy = mozneTahy();
-        // if (hrac==0)
+        if (hrac==0)
             for (int i=0;i<tahy.size();i++) {
                 cout << tahy[i] << "   ";
             }
@@ -282,7 +317,8 @@ int main() {
             tah = tahy[n];
             cout << tah << endl;
         }
-        pohyb(tah);
+
+        pohyb(tah, tahy);
         
         for (int i=0;i<8;i++) {
             for (int j=0;j<8;j++) {
@@ -292,6 +328,9 @@ int main() {
             }
         }
         pocetFigur();
+        if (tahy.size()==0) {
+            (hrac==0?bile=0:cerne=0);
+        }
     } while (soucetFigur > 0 && bile > 0 && cerne > 0);
     if (bile == 0) cout << "Vyhrál černý. Gratuluji.";
     else if (cerne == 0) cout << "Vyhral bílý. Gratuluji.";
