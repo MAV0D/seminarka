@@ -125,7 +125,7 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                     }
                 }
             } else {
-                if (hrac==0 && pole[i][j].pole=='x') {
+                if (pole[i][j].pole=='x' && hrac==0) {
                     char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
                     char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
                     char tahX = i + 1 + 'A';
@@ -204,7 +204,7 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
                             tahY++;
                         }
                     }
-                } else {
+                } else if (pole[i][j].pole=='o' && hrac==1) {
                     char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
                     char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
                     char tahX = i + 1 + 'A';
@@ -344,11 +344,7 @@ void pocetFigur() {
 
 int main() {
     srand(time(0));
-    // zakladniPozice();
-    pole[4][4].pole='x';
-    pole[4][4].dama=1;
-    pole[6][6].pole='o';
-    pole[2][2].pole='o';
+    zakladniPozice();
     do {
         vector<string> tahy = mozneTahy();
 
@@ -366,7 +362,7 @@ int main() {
         
         string tah;
         //if (hrac==0) 
-        cin >> tah;
+        std::cin >> tah;
         // else {
         //     int n = rand()%tahy.size();
         //     tah = tahy[n];
