@@ -310,7 +310,7 @@ bool pohyb(string tah, vector<string> mozneTahy) {
             }
             pole[puvodX][puvodY].pole = '.';
             if (abs(puvodX-tahX)>1) {
-                int nasX, nasY;
+                int nasX, nasY;             // nasobice pohybu
                 if (puvodX-tahX>0) nasX=-1;
                 else nasX=1;
                 if (puvodY-tahY>0) nasY=-1;
@@ -341,9 +341,7 @@ void pocetFigur() {
     }
 }
 
-
-int main() {
-    srand(time(0));
+int gameLoop() {
     zakladniPozice();
     do {
         vector<string> tahy = mozneTahy();
@@ -353,24 +351,29 @@ int main() {
             break;
         }
 
-        //if (hrac==0)
-            for (int i=0;i<tahy.size();i++) {
-                cout << tahy[i] << "   ";
-            }
-        cout << endl;
-        vypsatPole();
+        // if (hrac==0)
+        //     for (int i=0;i<tahy.size();i++) {
+        //         cout << tahy[i] << "   ";
+        //     }
+        // cout << endl;
+        // vypsatPole();
         
         string tah;
-        //if (hrac==0) 
-        std::cin >> tah;
-        // else {
-        //     int n = rand()%tahy.size();
-        //     tah = tahy[n];
-        //     cout << tah << endl;
-        // }
+        // if (hrac==0) 
+        // std::cin >> tah;
+        // else 
+        {
+            int n = rand()%tahy.size();
+            tah = tahy[n];
+        //    cout << tah << endl;
+        }
         if (tah=="REMIZA") {
             cout << "Hra skončila remízou. ";
-            return 1;
+            return 0;
+        }
+        if ((tah[0]-'A'+tah[1]-'1')%2!=0)  {
+            cout << "Neplatná pozice. ";
+            return -1;
         }
 
         pohyb(tah, tahy);
@@ -385,9 +388,83 @@ int main() {
         pocetFigur();
         
     } while (bile > 0 && cerne > 0);
-    vypsatPole();
-    if (bile == 0) cout << "Vyhrál algoritmus.";
-    else if (cerne == 0) cout << "Vyhral hráč. Gratuluji.";
-    else cout << "Hra skončila remízou.";
+    // vypsatPole();
+    // if (bile == 0) cout << "Vyhrál algoritmus." << endl;
+    // else if (cerne == 0) cout << "Vyhral hráč. Gratuluji." << endl;
+    // else cout << "Hra skončila remízou." << endl;
     return 1;
+}
+
+int gameSimulationLoop() {
+    zakladniPozice();
+    do {
+        vector<string> tahy = mozneTahy();
+
+        if (tahy.size()==0) {
+            (hrac==0?bile=0:cerne=0);
+            break;
+        }
+        
+        string tah;
+        int n = rand()%tahy.size();
+        tah = tahy[n];
+
+        if ((tah[0]-'A'+tah[1]-'1')%2!=0)  {
+            cout << "Neplatná pozice. ";
+            return -1;
+        }
+
+        pohyb(tah, tahy);
+        
+        for (int i=0;i<8;i++) {
+            if (pole[0][i].pole=='o') pole[0][i].dama=1;
+        }
+        for (int i=0;i<8;i++) {
+            if (pole[7][i].pole=='x') pole[7][i].dama=1;
+        }
+        
+        pocetFigur();
+        
+    } while (bile > 0 && cerne > 0);
+    if (cerne==0) return 1;
+    else if (bile==0) return 2;
+    return 1;
+}
+
+
+void simulaceHer() {
+    #define pocetSimulaci 10000
+
+    time_t zacatek = time(0);
+    srand(time(0));
+    int platneHry = 0;
+    int vyhryHrac = 0;
+    int vyhryAlgoritmus = 0;
+
+    int pocetTahu[pocetSimulaci];
+    int procenta, predeslaProcenta;
+    string reset(100, '\b');
+
+    for (int i=0;i<pocetSimulaci;i++) {
+        int vysledek = gameSimulationLoop();
+        if (vysledek==1) vyhryHrac++;
+        else if (vysledek==2) vyhryAlgoritmus++;
+        procenta = i/(pocetSimulaci/100);
+        if (procenta!=predeslaProcenta) {
+            string pomlcky(procenta, '-');
+            string tecky(100-procenta, '.');
+            cout << reset << pomlcky << tecky;
+        }
+        predeslaProcenta = procenta;
+    }
+    string hotovo(100, '-');
+    cout << reset << hotovo << endl;
+    platneHry = vyhryAlgoritmus + vyhryHrac;
+    time_t konec = time(0);
+    cout << konec - zacatek<< " s" << endl;
+    cout << "Výhry hráče: " << vyhryHrac << endl << "Výhry algoritmu: " << vyhryAlgoritmus << endl << platneHry;
+}
+
+int main() {
+    simulaceHer();
 }
