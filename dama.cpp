@@ -339,20 +339,36 @@ void pocetFigur() {
     }
 }
 
+int vyhodaVPozici() {
+    int vyhoda = 0;
+    for (int i=0;i<8;i++) {
+        for (int j=0;j<8;j++) {
+            if (pole[i][j].pole=='x' && !pole[i][j].dama) vyhoda++;
+            if (pole[i][j].pole=='x' && pole[i][j].dama) vyhoda+=3;
+            if (pole[i][j].pole=='o' && !pole[i][j].dama) vyhoda--;
+            if (pole[i][j].pole=='o' && pole[i][j].dama) vyhoda-=3;
+        }
+    }
+    return vyhoda;
+}
+
 int gameLoop() {
     zakladniPozice();
     do {
         vector<string> tahy = mozneTahy();
 
         if (tahy.size()==0) {
-            (hrac==0?bile=0:cerne=0);
+            (hrac==0?bile:cerne)=0;
             break;
         }
 
-        if (hrac==0)
+        if (hrac==0) {
+            int vyhoda = vyhodaVPozici();
+            cout << vyhoda << endl;
             for (int i=0;i<tahy.size();i++) {
                 cout << tahy[i] << "   ";
             }
+        }
         cout << endl;
         vypsatPole();
         
