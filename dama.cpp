@@ -310,11 +310,9 @@ bool pohyb(string tah, vector<string> mozneTahy) {
             }
             pole[puvodX][puvodY].pole = '.';
             if (abs(puvodX-tahX)>1) {
-                int nasX, nasY;             // nasobice pohybu
-                if (puvodX-tahX>0) nasX=-1;
-                else nasX=1;
-                if (puvodY-tahY>0) nasY=-1;
-                else nasY=1;
+                int nasX, nasY;             // nasobice pohybu (smeru nahoru/dolu)
+                nasX = (puvodX-tahX>0) ? -1 : 1;
+                nasY = (puvodY-tahY>0) ? -1 : 1;
                 for (int j=1;j<abs(puvodX-tahX);j++) {
                     if (pole[puvodX+j*nasX][puvodY+j*nasY].pole=='.') continue;
                     if (pole[puvodX+j*nasX][puvodY+j*nasY].pole!=pole[puvodX][puvodY].pole) pole[puvodX+j*nasX][puvodY+j*nasY].pole = '.';
@@ -351,29 +349,25 @@ int gameLoop() {
             break;
         }
 
-        // if (hrac==0)
-        //     for (int i=0;i<tahy.size();i++) {
-        //         cout << tahy[i] << "   ";
-        //     }
-        // cout << endl;
-        // vypsatPole();
+        if (hrac==0)
+            for (int i=0;i<tahy.size();i++) {
+                cout << tahy[i] << "   ";
+            }
+        cout << endl;
+        vypsatPole();
         
         string tah;
-        // if (hrac==0) 
-        // std::cin >> tah;
-        // else 
+        if (hrac==0) 
+        std::cin >> tah;
+        else 
         {
             int n = rand()%tahy.size();
             tah = tahy[n];
-        //    cout << tah << endl;
+           cout << tah << endl;
         }
         if (tah=="REMIZA") {
             cout << "Hra skončila remízou. ";
             return 0;
-        }
-        if ((tah[0]-'A'+tah[1]-'1')%2!=0)  {
-            cout << "Neplatná pozice. ";
-            return -1;
         }
 
         pohyb(tah, tahy);
@@ -388,10 +382,10 @@ int gameLoop() {
         pocetFigur();
         
     } while (bile > 0 && cerne > 0);
-    // vypsatPole();
-    // if (bile == 0) cout << "Vyhrál algoritmus." << endl;
-    // else if (cerne == 0) cout << "Vyhral hráč. Gratuluji." << endl;
-    // else cout << "Hra skončila remízou." << endl;
+    vypsatPole();
+    if (bile == 0) cout << "Vyhrál algoritmus." << endl;
+    else if (cerne == 0) cout << "Vyhral hráč. Gratuluji." << endl;
+    else cout << "Hra skončila remízou." << endl;
     return 1;
 }
 
@@ -432,8 +426,8 @@ int gameSimulationLoop() {
 }
 
 
-void simulaceHer() {
-    #define pocetSimulaci 10000
+void simulaceHer(int hry) {
+    int pocetSimulaci = hry; 
 
     time_t zacatek = time(0);
     srand(time(0));
@@ -441,7 +435,6 @@ void simulaceHer() {
     int vyhryHrac = 0;
     int vyhryAlgoritmus = 0;
 
-    int pocetTahu[pocetSimulaci];
     int procenta, predeslaProcenta;
     string reset(100, '\b');
 
@@ -449,7 +442,7 @@ void simulaceHer() {
         int vysledek = gameSimulationLoop();
         if (vysledek==1) vyhryHrac++;
         else if (vysledek==2) vyhryAlgoritmus++;
-        procenta = i/(pocetSimulaci/100);
+        procenta = i/float(pocetSimulaci/100);
         if (procenta!=predeslaProcenta) {
             string pomlcky(procenta, '-');
             string tecky(100-procenta, '.');
@@ -466,5 +459,15 @@ void simulaceHer() {
 }
 
 int main() {
-    simulaceHer();
+    cout << "Vítejte. Chcete hrát proti algoritmu (1), nebo nechat algoritmy hrát proti sobě (2)? ";
+    int volba;
+    cin >> volba;
+    if (volba==1) gameLoop();
+    else if (volba==2) {
+        cout << "Kolik her chcete simulovat? ";
+        int pocetHer;
+        cin >> pocetHer;
+        cout << "Začátek simulace";
+        simulaceHer(pocetHer);
+    }
 }
