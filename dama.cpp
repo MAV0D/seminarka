@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <cstdlib>
+#include <cmath>
+#include <iomanip>
 
 using namespace std;
 
@@ -10,36 +12,37 @@ struct figura {
     bool dama = 0;
 };
 
-figura pole[8][8];
+figura hraciPole[8][8];
+figura simulacniPole[8][8];
 bool hrac=0;                    // 0 - bílá, 1 - černá
 int bile, cerne;
 
-void vypsatPole() {             // vypíše pole do terminálu s tečkami jako prázdnými poli a O/X jako kameny
+void vypsatHraciPole() {        // vypíše pole do terminálu s tečkami jako prázdnými poli a O/X jako kameny
     for (int i=0;i<8;i++){
         for (int j=0;j<8;j++)
-            cout << pole[i][j].pole << ' ';
-        cout << endl;
+            std::cout << hraciPole[i][j].pole << ' ';
+        std::cout << endl;
         }
 }
 
-void zakladniPozice() {         // nastaví hru do základní pozice o 12 kamenech pro každou stranu
+void zakladniPoziceHracihoPole() {         // nastaví hru do základní pozice o 12 kamenech pro každou stranu
     for (int i=0;i<3;i++) {
         for (int j=0;j<8;j++) {
             if (!((i+j)%2)) {
-                pole[i][j].pole = 'x';
+                hraciPole[i][j].pole = 'x';
             }
         }
     }
     for (int i=5;i<8;i++) {
         for (int j=0;j<8;j++) {
             if (!((i+j)%2)) {
-                pole[i][j].pole = 'o';
+                hraciPole[i][j].pole = 'o';
             }
         }
     }
 }
 
-vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozici a vrítí je formou vectoru stringů
+vector<string> mozneTahy(figura pole[8][8]) {            // zjistí všechny možné tahy v pozici a vrítí je formou vectoru stringů
     vector<string> mozneTahy;
     for (int i=0;i<8;i++) {
         for (int j=0;j<8;j++) {
@@ -290,7 +293,7 @@ vector<string> mozneTahy() {            // zjistí všechny možné tahy v pozic
     return mozneTahy;
 }
 
-bool pohyb(string tah, vector<string> mozneTahy) {
+bool pohyb(string tah, vector<string> mozneTahy, figura pole[8][8]) {
     for (int i=0;i<mozneTahy.size();i++) {
         if (tah==mozneTahy[i]) {
             int puvodX = tah[0] - 'A';
@@ -318,15 +321,14 @@ bool pohyb(string tah, vector<string> mozneTahy) {
                     if (pole[puvodX+j*nasX][puvodY+j*nasY].pole!=pole[puvodX][puvodY].pole) pole[puvodX+j*nasX][puvodY+j*nasY].pole = '.';
                 }
             }
-            hrac = (hrac?0:1);
             return 1;
         }
     }
-    cout << "Neplatný tah, hrajte znovu." << endl;
+    std::cout << "Neplatný tah, hrajte znovu." << endl;
     return 0;
 }
 
-void pocetFigur() {
+void pocetFigur(figura pole[8][8]) {
     bile = 0;
     cerne = 0;
     for (int i=0;i<8;i++) {
@@ -339,23 +341,68 @@ void pocetFigur() {
     }
 }
 
-int vyhodaVPozici() {
-    int vyhoda = 0;
+float vyhodaVPozici(figura pole[8][8]) {
+    float vyhoda = 0.0;
     for (int i=0;i<8;i++) {
         for (int j=0;j<8;j++) {
-            if (pole[i][j].pole=='x' && !pole[i][j].dama) vyhoda++;
-            if (pole[i][j].pole=='x' && pole[i][j].dama) vyhoda+=3;
-            if (pole[i][j].pole=='o' && !pole[i][j].dama) vyhoda--;
-            if (pole[i][j].pole=='o' && pole[i][j].dama) vyhoda-=3;
+            float vyhodaZPole = 0.0;
+            if (pole[i][j].pole=='x' && !pole[i][j].dama) {
+                vyhodaZPole = 1 + 0.1 * (i+1);
+            } else if (pole[i][j].pole=='x' && pole[i][j].dama) {
+                vyhodaZPole = 3;
+            } else if (pole[i][j].pole=='o' && !pole[i][j].dama) {
+                vyhodaZPole = -(1 + 0.1 * (7-i+1));
+            } else if (pole[i][j].pole=='o' && pole[i][j].dama) {
+                vyhodaZPole = -3;
+            }
+            vyhodaZPole = round(vyhodaZPole*10)/10.0;
+            vyhoda += vyhodaZPole;
         }
     }
     return vyhoda;
 }
 
+vector<string> nejlepsiTahyVPozici(figura pole[8][8]) {
+    vector<string> nejlepsiTahy = {};
+    float nejlepsiTah = !hrac ? -999 : 999;
+    vector<string> tahy = mozneTahy(hraciPole);
+
+    for (string tah : tahy) {
+        float vyhoda;
+        
+        for (int i=0;i<8;i++) {
+            for (int j=0;j<8;j++) {
+                simulacniPole[i][j] = hraciPole[i][j];
+            }
+        }
+
+        pohyb(tah, tahy, simulacniPole);
+
+        vyhoda = vyhodaVPozici(simulacniPole);
+
+        if (hrac) {
+            if (vyhoda<nejlepsiTah) {
+                nejlepsiTahy = {};
+                nejlepsiTahy.push_back(tah);
+                nejlepsiTah=vyhoda;
+            } else if (vyhoda==nejlepsiTah) {
+                nejlepsiTahy.push_back(tah);
+            }
+        } else if (vyhoda>nejlepsiTah) {
+                nejlepsiTahy = {};
+                nejlepsiTahy.push_back(tah);
+                nejlepsiTah=vyhoda;
+        } else if (vyhoda==nejlepsiTah) {
+                nejlepsiTahy.push_back(tah);
+            }
+    }
+    return nejlepsiTahy;
+}
+
 int gameLoop() {
-    zakladniPozice();
+    zakladniPoziceHracihoPole();
     do {
-        vector<string> tahy = mozneTahy();
+        vector<string> tahy = mozneTahy(hraciPole);
 
         if (tahy.size()==0) {
             (hrac==0?bile:cerne)=0;
@@ -363,52 +410,54 @@ int gameLoop() {
         }
 
         if (hrac==0) {
-            int vyhoda = vyhodaVPozici();
-            cout << vyhoda << endl;
-            for (int i=0;i<tahy.size();i++) {
-                cout << tahy[i] << "   ";
+            float vyhoda = vyhodaVPozici(hraciPole);
+            std::cout << fixed << setprecision(1) << vyhoda << endl;
+            for (string tah : tahy) {
+                std::cout << tah << "   ";
             }
         }
-        cout << endl;
-        vypsatPole();
+        std::cout << endl;
+        vypsatHraciPole();
         
         string tah;
-        if (hrac==0) 
+        if (hrac==0)
         std::cin >> tah;
         else 
         {
-            int n = rand()%tahy.size();
-            tah = tahy[n];
-           cout << tah << endl;
+            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole);
+            int n = rand()%nejlepsiTahy.size();
+            tah = nejlepsiTahy[n];
+            std::cout << tah << endl;
         }
         if (tah=="REMIZA") {
-            cout << "Hra skončila remízou. ";
+            std::cout << "Hra skončila remízou. ";
             return 0;
         }
 
-        pohyb(tah, tahy);
+        bool platnyTah = pohyb(tah, tahy, hraciPole);
+        if (platnyTah) hrac = (hrac?0:1);
         
         for (int i=0;i<8;i++) {
-            if (pole[0][i].pole=='o') pole[0][i].dama=1;
+            if (hraciPole[0][i].pole=='o') hraciPole[0][i].dama=1;
         }
         for (int i=0;i<8;i++) {
-            if (pole[7][i].pole=='x') pole[7][i].dama=1;
+            if (hraciPole[7][i].pole=='x') hraciPole[7][i].dama=1;
         }
         
-        pocetFigur();
+        pocetFigur(hraciPole);
         
     } while (bile > 0 && cerne > 0);
-    vypsatPole();
-    if (bile == 0) cout << "Vyhrál algoritmus." << endl;
-    else if (cerne == 0) cout << "Vyhral hráč. Gratuluji." << endl;
-    else cout << "Hra skončila remízou." << endl;
+    vypsatHraciPole();
+    if (bile == 0) std::cout << "Vyhrál algoritmus." << endl;
+    else if (cerne == 0) std::cout << "Vyhral hráč. Gratuluji." << endl;
+    else std::cout << "Hra skončila remízou." << endl;
     return 1;
 }
 
 int gameSimulationLoop() {
-    zakladniPozice();
+    zakladniPoziceHracihoPole();
     do {
-        vector<string> tahy = mozneTahy();
+        vector<string> tahy = mozneTahy(hraciPole);
 
         if (tahy.size()==0) {
             (hrac==0?bile=0:cerne=0);
@@ -420,20 +469,21 @@ int gameSimulationLoop() {
         tah = tahy[n];
 
         if ((tah[0]-'A'+tah[1]-'1')%2!=0)  {
-            cout << "Neplatná pozice. ";
+            std::cout << "Neplatná pozice. ";
             return -1;
         }
 
-        pohyb(tah, tahy);
+        bool platnyTah = pohyb(tah, tahy, hraciPole);
+        if (platnyTah) hrac = (hrac?0:1);
         
         for (int i=0;i<8;i++) {
-            if (pole[0][i].pole=='o') pole[0][i].dama=1;
+            if (hraciPole[0][i].pole=='o') hraciPole[0][i].dama=1;
         }
         for (int i=0;i<8;i++) {
-            if (pole[7][i].pole=='x') pole[7][i].dama=1;
+            if (hraciPole[7][i].pole=='x') hraciPole[7][i].dama=1;
         }
         
-        pocetFigur();
+        pocetFigur(hraciPole);
         
     } while (bile > 0 && cerne > 0);
     if (cerne==0) return 1;
@@ -462,28 +512,29 @@ void simulaceHer(int hry) {
         if (procenta!=predeslaProcenta) {
             string pomlcky(procenta, '-');
             string tecky(100-procenta, '.');
-            cout << reset << pomlcky << tecky;
+            std::cout << reset << pomlcky << tecky;
         }
         predeslaProcenta = procenta;
     }
     string hotovo(100, '-');
-    cout << reset << hotovo << endl;
+    std::cout << reset << hotovo << endl;
     platneHry = vyhryAlgoritmus + vyhryHrac;
     time_t konec = time(0);
-    cout << konec - zacatek<< " s" << endl;
-    cout << "Výhry hráče: " << vyhryHrac << endl << "Výhry algoritmu: " << vyhryAlgoritmus << endl << platneHry;
+    std::cout << konec - zacatek<< " s" << endl;
+    std::cout << "Výhry hráče: " << vyhryHrac << endl << "Výhry algoritmu: " << vyhryAlgoritmus << endl << platneHry;
 }
 
 int main() {
-    cout << "Vítejte. Chcete hrát proti algoritmu (1), nebo nechat algoritmy hrát proti sobě (2)? ";
+    srand(time(0));
+    std::cout << "Vítejte. Chcete hrát proti algoritmu (1), nebo nechat algoritmy hrát proti sobě (2)? ";
     int volba;
     cin >> volba;
     if (volba==1) gameLoop();
     else if (volba==2) {
-        cout << "Kolik her chcete simulovat? ";
+        std::cout << "Kolik her chcete simulovat? ";
         int pocetHer;
         cin >> pocetHer;
-        cout << "Začátek simulace";
+        std::cout << "Začátek simulace";
         simulaceHer(pocetHer);
     }
 }
