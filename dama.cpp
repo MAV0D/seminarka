@@ -7,14 +7,15 @@
 
 using namespace std;
 
-struct figura {
+struct pole {
     char pole = '.';
     bool dama = 0;
 };
 
-figura hraciPole[8][8];
-figura simulacniPole[8][8];
-bool hrac=0;                    // 0 - bílá, 1 - černá
+pole hraciPole[8][8];
+pole simulacniPole[8][8];
+bool aktualniHrac=0;                    // 0 - bílá, 1 - černá
+bool hracVSimulaci=0;
 int bile, cerne;
 
 void vypsatHraciPole() {        // vypíše pole do terminálu s tečkami jako prázdnými poli a O/X jako kameny
@@ -42,7 +43,7 @@ void zakladniPoziceHracihoPole() {         // nastaví hru do základní pozice 
     }
 }
 
-vector<string> mozneTahy(figura pole[8][8]) {            // zjistí všechny možné tahy v pozici a vrítí je formou vectoru stringů
+vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí všechny možné tahy v pozici a vrítí je formou vectoru stringů
     vector<string> mozneTahy;
     for (int i=0;i<8;i++) {
         for (int j=0;j<8;j++) {
@@ -294,6 +295,7 @@ vector<string> mozneTahy(figura pole[8][8]) {            // zjistí všechny mo�
 }
 
 bool pohyb(string tah, vector<string> mozneTahy, figura pole[8][8]) {
+bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
     for (int i=0;i<mozneTahy.size();i++) {
         if (tah==mozneTahy[i]) {
             int puvodX = tah[0] - 'A';
@@ -312,6 +314,7 @@ bool pohyb(string tah, vector<string> mozneTahy, figura pole[8][8]) {
                 pole[tahX][tahY].dama = pole[puvodX][puvodY].dama;
             }
             pole[puvodX][puvodY].pole = '.';
+            pole[puvodX][puvodY].dama = 0;
             if (abs(puvodX-tahX)>1) {
                 int nasX, nasY;             // nasobice pohybu (smeru nahoru/dolu)
                 nasX = (puvodX-tahX>0) ? -1 : 1;
@@ -329,6 +332,7 @@ bool pohyb(string tah, vector<string> mozneTahy, figura pole[8][8]) {
 }
 
 void pocetFigur(figura pole[8][8]) {
+void pocetFigur(pole pole[8][8]) {
     bile = 0;
     cerne = 0;
     for (int i=0;i<8;i++) {
@@ -341,7 +345,7 @@ void pocetFigur(figura pole[8][8]) {
     }
 }
 
-float vyhodaVPozici(figura pole[8][8]) {
+float vyhodaVPozici(pole pole[8][8]) {
     float vyhoda = 0.0;
     for (int i=0;i<8;i++) {
         for (int j=0;j<8;j++) {
@@ -364,8 +368,8 @@ float vyhodaVPozici(figura pole[8][8]) {
 
 vector<string> nejlepsiTahyVPozici(figura pole[8][8]) {
     vector<string> nejlepsiTahy = {};
-    float nejlepsiTah = !hrac ? -999 : 999;
-    vector<string> tahy = mozneTahy(hraciPole);
+    float nejlepsiTah = !aktualniHrac ? -999 : 999;
+    vector<string> tahy = mozneTahy(hraciPole, hracVSimulaci);
 
     for (string tah : tahy) {
         float vyhoda;
@@ -376,11 +380,12 @@ vector<string> nejlepsiTahyVPozici(figura pole[8][8]) {
             }
         }
 
-        pohyb(tah, tahy, simulacniPole);
+        bool platnyPohyb = pohyb(tah, tahy, simulacniPole);
+        if (platnyPohyb) hracVSimulaci = hracVSimulaci ? 0 : 1;
 
         vyhoda = vyhodaVPozici(simulacniPole);
 
-        if (hrac) {
+        if (aktualniHrac) {
             if (vyhoda<nejlepsiTah) {
                 nejlepsiTahy = {};
                 nejlepsiTahy.push_back(tah);
@@ -388,13 +393,15 @@ vector<string> nejlepsiTahyVPozici(figura pole[8][8]) {
             } else if (vyhoda==nejlepsiTah) {
                 nejlepsiTahy.push_back(tah);
             }
-        } else if (vyhoda>nejlepsiTah) {
+        } else {
+            if (vyhoda>nejlepsiTah) {
                 nejlepsiTahy = {};
                 nejlepsiTahy.push_back(tah);
                 nejlepsiTah=vyhoda;
-        } else if (vyhoda==nejlepsiTah) {
+            } else if (vyhoda==nejlepsiTah) {
                 nejlepsiTahy.push_back(tah);
             }
+        }
     }
     return nejlepsiTahy;
 }
@@ -402,29 +409,29 @@ vector<string> nejlepsiTahyVPozici(figura pole[8][8]) {
 int gameLoop() {
     zakladniPoziceHracihoPole();
     do {
-        vector<string> tahy = mozneTahy(hraciPole);
+        vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
 
         if (tahy.size()==0) {
-            (hrac==0?bile:cerne)=0;
+            (aktualniHrac==0?bile:cerne)=0;
             break;
         }
 
-        if (hrac==0) {
+        if (aktualniHrac==0) {
             float vyhoda = vyhodaVPozici(hraciPole);
             std::cout << fixed << setprecision(1) << vyhoda << endl;
-            for (string tah : tahy) {
-                std::cout << tah << "   ";
-            }
+            for (string tah : tahy) 
+                std::cout << tah << "   ";    
+            std::cout << endl;
         }
-        std::cout << endl;
         vypsatHraciPole();
         
         string tah;
-        if (hrac==0)
-        std::cin >> tah;
+        if (aktualniHrac==0)
+            std::cin >> tah;
         else 
         {
-            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole);
+            hracVSimulaci = aktualniHrac;
+            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole, 1);
             int n = rand()%nejlepsiTahy.size();
             tah = nejlepsiTahy[n];
             std::cout << tah << endl;
@@ -435,12 +442,10 @@ int gameLoop() {
         }
 
         bool platnyTah = pohyb(tah, tahy, hraciPole);
-        if (platnyTah) hrac = (hrac?0:1);
+        if (platnyTah) aktualniHrac = (aktualniHrac?0:1);
         
         for (int i=0;i<8;i++) {
             if (hraciPole[0][i].pole=='o') hraciPole[0][i].dama=1;
-        }
-        for (int i=0;i<8;i++) {
             if (hraciPole[7][i].pole=='x') hraciPole[7][i].dama=1;
         }
         
@@ -457,10 +462,10 @@ int gameLoop() {
 int gameSimulationLoop() {
     zakladniPoziceHracihoPole();
     do {
-        vector<string> tahy = mozneTahy(hraciPole);
+        vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
 
         if (tahy.size()==0) {
-            (hrac==0?bile=0:cerne=0);
+            (aktualniHrac==0?bile=0:cerne=0);
             break;
         }
         
@@ -474,7 +479,7 @@ int gameSimulationLoop() {
         }
 
         bool platnyTah = pohyb(tah, tahy, hraciPole);
-        if (platnyTah) hrac = (hrac?0:1);
+        if (platnyTah) aktualniHrac = (aktualniHrac?0:1);
         
         for (int i=0;i<8;i++) {
             if (hraciPole[0][i].pole=='o') hraciPole[0][i].dama=1;
@@ -491,7 +496,6 @@ int gameSimulationLoop() {
     return 1;
 }
 
-
 void simulaceHer(int hry) {
     int pocetSimulaci = hry; 
 
@@ -502,7 +506,7 @@ void simulaceHer(int hry) {
     int vyhryAlgoritmus = 0;
 
     int procenta, predeslaProcenta;
-    string reset(100, '\b');
+    string reset(104, '\b');
 
     for (int i=0;i<pocetSimulaci;i++) {
         int vysledek = gameSimulationLoop();
@@ -512,16 +516,16 @@ void simulaceHer(int hry) {
         if (procenta!=predeslaProcenta) {
             string pomlcky(procenta, '-');
             string tecky(100-procenta, '.');
-            std::cout << reset << pomlcky << tecky;
+            std::cout << reset << pomlcky << tecky << ' ' << procenta << '%';
         }
         predeslaProcenta = procenta;
     }
     string hotovo(100, '-');
-    std::cout << reset << hotovo << endl;
+    std::cout << reset << hotovo << " 100%" << endl;
     platneHry = vyhryAlgoritmus + vyhryHrac;
     time_t konec = time(0);
     std::cout << konec - zacatek<< " s" << endl;
-    std::cout << "Výhry hráče: " << vyhryHrac << endl << "Výhry algoritmu: " << vyhryAlgoritmus << endl << platneHry;
+    std::cout << "Výhry hráče: " << vyhryHrac << endl << "Výhry algoritmu: " << vyhryAlgoritmus << endl << platneHry << endl;
 }
 
 int main() {
@@ -537,4 +541,6 @@ int main() {
         std::cout << "Začátek simulace";
         simulaceHer(pocetHer);
     }
+    cout << "Program skončil. ";
+    return 1;
 }
