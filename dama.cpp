@@ -45,86 +45,111 @@ void zakladniPoziceHracihoPole() {         // nastaví hru do základní pozice 
 
 vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí všechny možné tahy v pozici a vrítí je formou vectoru stringů
     vector<string> mozneTahy;
+    bool mozneBrani = 0, mozneBraniDamou = 0;
     for (int i=0;i<8;i++) {
         for (int j=0;j<8;j++) {
             if (pole[i][j].dama==0) {
                 if (pole[i][j].pole=='x' && hrac == 0) {
                     if (pole[i+1][j-1].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j - 1 + '1';
-                        if((i+1) <= 7 && (j-1) >= 0) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBrani && !mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j - 1 + '1';
+                            if((i+1) <= 7 && (j-1) >= 0) {
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy.push_back(tah);
+                            }
                         }
                     } else if (pole[i+1][j-1].pole=='o' && pole[i+2][j-2].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j - 1 + '1';
-                        if((i+2) <= 7 && (j-2) >= 0) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j - 1 + '1';
+                            if((i+2) <= 7 && (j-2) >= 0) {
+                                if (!mozneBrani) mozneTahy = {};
+                                mozneBrani = 1;
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy.push_back(tah);
+                            }
                         }
                     }
                     if (pole[i+1][j+1].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j + 1 + '1';
-                        if((i+1) <= 7 && (j+1) <= 7) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBrani && !mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j + 1 + '1';
+                            if((i+1) <= 7 && (j+1) <= 7) {
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy.push_back(tah);
+                            }
                         }
                     } else if (pole[i+1][j+1].pole=='o' && pole[i+2][j+2].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j + 1 + '1';
-                        if((i+2) <= 7 && (j+2) <= 7) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i + 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j + 1 + '1';
+                            if((i+2) <= 7 && (j+2) <= 7) {
+                                if (!mozneBrani) mozneTahy = {};
+                                mozneBrani = 1;
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy.push_back(tah);
+                            }
                         }
                     }
                 }
                 if (pole[i][j].pole=='o' && hrac == 1) {
                     if (pole[i-1][j-1].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j - 1 + '1';
-                        if((i-1) >= 0 && (j-1) >= 0) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBrani && !mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j - 1 + '1';
+                            if((i-1) >= 0 && (j-1) >= 0) {
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy.push_back(tah);
+                            }
                         }
                     } else if (pole[i-1][j-1].pole=='x' && pole[i-2][j-2].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j - 1 + '1';
-                        if((i-2) >= 0 && (j-2) >= 0) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j - 1 + '1';
+                            if((i-2) >= 0 && (j-2) >= 0) {
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy = {};
+                                mozneTahy.push_back(tah);
+                                mozneBrani=1;
+                            }
                         }
                     }
                     if (pole[i-1][j+1].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j + 1 + '1';
-                        if((i-1) >= 0 && (j+1) <= 7) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBrani && !mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j + 1 + '1';
+                            if((i-1) >= 0 && (j+1) <= 7) {
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy.push_back(tah);
+                            }
                         }
                     } else if (pole[i-1][j+1].pole=='x' && pole[i-2][j+2].pole=='.') {
-                        char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
-                        char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
-                        char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
-                        char tahY = j + 1 + '1';
-                        if((i-2) >= 0 && (j+2) <= 7) {
-                            string tah = string(1, puvodX)+puvodY+tahX+tahY;
-                            mozneTahy.push_back(tah);
+                        if (!mozneBraniDamou) {
+                            char puvodX = i + 'A';      // přičítá 'A' aby bylo písmeno
+                            char puvodY = j + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+                            char tahX = i - 1 + 'A';    // přičítá 1 - zjištění dalšího tahu
+                            char tahY = j + 1 + '1';
+                            if((i-2) >= 0 && (j+2) <= 7) {
+                                if (!mozneBrani) mozneTahy = {};
+                                mozneBrani = 1;
+                                string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                                mozneTahy.push_back(tah);
+                            }
                         }
                     }
                 }
@@ -145,6 +170,16 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX++;
+                                tahY++;
+                                continue;
+                            }
+                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {};
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX++;
@@ -164,6 +199,16 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX++;
+                                tahY--;
+                                continue;
+                            }
+                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {}; 
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX++;
@@ -183,6 +228,16 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX--;
+                                tahY--;
+                                continue;
+                            }
+                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {}; 
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX--;
@@ -202,6 +257,16 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='x') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX--;
+                                tahY++;
+                                continue;
+                            }
+                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {}; 
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX--;
@@ -224,6 +289,16 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='o') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX++;
+                                tahY++;
+                                continue;
+                            }
+                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {}; 
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX++;
@@ -243,6 +318,15 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='o') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX++;
+                                tahY--;
+                                continue;
+                            }                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {}; 
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX++;
@@ -262,6 +346,16 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='o') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX--;
+                                tahY--;
+                                continue;
+                            }
+                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {}; 
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX--;
@@ -281,6 +375,16 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
                             }
                         } else if (pole[tahX-'A'][tahY-'1'].pole=='o') break;
                         else {
+                            if (!(mozneBrani && preskoceno) ^ !mozneBrani) {
+                                tahX--;
+                                tahY++;
+                                continue;
+                            }
+                            if (preskoceno && !mozneBraniDamou) {
+                                mozneTahy = {}; 
+                                mozneBraniDamou=1;
+                                mozneBrani = 1;
+                            }
                             string tah = string(1, puvodX)+puvodY+tahX+tahY;
                             mozneTahy.push_back(tah);
                             tahX--;
@@ -294,7 +398,6 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
     return mozneTahy;
 }
 
-bool pohyb(string tah, vector<string> mozneTahy, figura pole[8][8]) {
 bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
     for (int i=0;i<mozneTahy.size();i++) {
         if (tah==mozneTahy[i]) {
@@ -331,7 +434,15 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
     return 0;
 }
 
-void pocetFigur(figura pole[8][8]) {
+vector<string> mozneBraniPoTahu(string tah, pole pole[8][8]) {
+    vector<string> v = {};
+    int poleX = tah[2]-'A';
+    int poleY = tah[3]-'1';
+
+
+    return v;
+}
+
 void pocetFigur(pole pole[8][8]) {
     bile = 0;
     cerne = 0;
@@ -366,7 +477,7 @@ float vyhodaVPozici(pole pole[8][8]) {
     return vyhoda;
 }
 
-vector<string> nejlepsiTahyVPozici(figura pole[8][8]) {
+vector<string> nejlepsiTahyVPozici(pole pole[8][8], int hloubka) {
     vector<string> nejlepsiTahy = {};
     float nejlepsiTah = !aktualniHrac ? -999 : 999;
     vector<string> tahy = mozneTahy(hraciPole, hracVSimulaci);
@@ -420,7 +531,7 @@ int gameLoop() {
             float vyhoda = vyhodaVPozici(hraciPole);
             std::cout << fixed << setprecision(1) << vyhoda << endl;
             for (string tah : tahy) 
-                std::cout << tah << "   ";    
+                std::cout << tah << "   ";
             std::cout << endl;
         }
         vypsatHraciPole();
@@ -470,8 +581,15 @@ int gameSimulationLoop() {
         }
         
         string tah;
-        int n = rand()%tahy.size();
-        tah = tahy[n];
+        if (aktualniHrac == 0) {
+            int n = rand()%tahy.size();
+            tah = tahy[n];
+        } else {
+            hracVSimulaci = aktualniHrac;
+            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole, 1);
+            int n = rand()%nejlepsiTahy.size();
+            tah = nejlepsiTahy[n];
+        }
 
         if ((tah[0]-'A'+tah[1]-'1')%2!=0)  {
             std::cout << "Neplatná pozice. ";
