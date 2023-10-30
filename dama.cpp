@@ -398,13 +398,153 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjistí vš
     return mozneTahy;
 }
 
-bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
+vector<string> moznePokracovaniTahu(pole pole[8][8], int zacatecniPoleX, int zacatecniPoleY, bool hrac) {
+    vector<string> mozneBraniPoTahu;
+    string tah;
+    if (!pole[zacatecniPoleX][zacatecniPoleY].dama) {
+        if (pole[zacatecniPoleX][zacatecniPoleY].pole=='x') {
+            if (pole[zacatecniPoleX+1][zacatecniPoleY-1].pole=='o' && pole[zacatecniPoleX+2][zacatecniPoleY-2].pole=='.' && zacatecniPoleX+2<=7 && zacatecniPoleY-2 >= 0) {
+                tah = string(' ', 1)+char(zacatecniPoleX+'A')+char(zacatecniPoleY+'1')+char(zacatecniPoleX+'A'+1)+char(zacatecniPoleY+'1'-1);
+                mozneBraniPoTahu.push_back(tah);
+            }
+            if (pole[zacatecniPoleX+1][zacatecniPoleY+1].pole=='o' && pole[zacatecniPoleX+2][zacatecniPoleY+2].pole=='.' && zacatecniPoleX+2<=7 && zacatecniPoleY+2 <= 7) {
+                tah = string(' ', 1)+char(zacatecniPoleX+'A')+char(zacatecniPoleY+'1')+char(zacatecniPoleX+'A'+1)+char(zacatecniPoleY+'1'+1);
+                mozneBraniPoTahu.push_back(tah);
+            }
+        } else if (pole[zacatecniPoleX][zacatecniPoleY].pole=='o') {
+            if (pole[zacatecniPoleX-1][zacatecniPoleY-1].pole=='x' && pole[zacatecniPoleX-2][zacatecniPoleY-2].pole=='.' && zacatecniPoleX-2>=0 && zacatecniPoleY-2 >= 0) {
+                tah = string(' ', 1)+char(zacatecniPoleX+'A')+char(zacatecniPoleY+'1')+char(zacatecniPoleX+'A'-1)+char(zacatecniPoleY+'1'-1);
+                mozneBraniPoTahu.push_back(tah);
+            }
+            if (pole[zacatecniPoleX-1][zacatecniPoleY+1].pole=='x' && pole[zacatecniPoleX-2][zacatecniPoleY+2].pole=='.' && zacatecniPoleX-2>=0 && zacatecniPoleY+2 <= 7) {
+                tah = string(' ', 1)+char(zacatecniPoleX+'A')+char(zacatecniPoleY+'1')+char(zacatecniPoleX+'A'-1)+char(zacatecniPoleY+'1'+1);
+                mozneBraniPoTahu.push_back(tah);
+            }
+        }
+    } else if (pole[zacatecniPoleX][zacatecniPoleY].dama) {
+        char puvodX = zacatecniPoleX + 'A';      // přičítá 'A' aby bylo písmeno
+        char puvodY = zacatecniPoleY + '1';      // přičítá '1' aby bylo číslo v rozmezí 1-8
+        char tahX = zacatecniPoleX + 1 + 'A';
+        char tahY = zacatecniPoleY + 1 + '1';
+        bool preskoceno = 0;
+        while (tahX<='H' && tahY<='8') {
+            if (pole[tahX-'A'][tahY-'1'].pole!=pole[zacatecniPoleX][zacatecniPoleY].pole && pole[tahX-'A'][tahY-'1'].pole!='.') {
+                if (preskoceno) break;
+                else {
+                    preskoceno = 1;
+                    tahX++;
+                    tahY++;
+                }
+            } else if (pole[tahX-'A'][tahY-'1'].pole==pole[zacatecniPoleX][zacatecniPoleY].pole) break;
+            else {
+                if (preskoceno) {
+                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                    mozneBraniPoTahu.push_back(tah);
+                }
+                tahX++;
+                tahY++;
+            }
+        }
+        tahX = zacatecniPoleX + 1 + 'A';
+        tahY = zacatecniPoleY - 1 + '1';
+        preskoceno = 0;
+        while (tahX<='H' && tahY>='1') {
+            if (pole[tahX-'A'][tahY-'1'].pole!=pole[zacatecniPoleX][zacatecniPoleY].pole && pole[tahX-'A'][tahY-'1'].pole!='.') {
+                if (preskoceno) break;
+                else {
+                    preskoceno = 1;
+                    tahX++;
+                    tahY--;
+                }
+            } else if (pole[tahX-'A'][tahY-'1'].pole==pole[zacatecniPoleX][zacatecniPoleY].pole) break;
+            else {
+                if (preskoceno) {
+                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                    mozneBraniPoTahu.push_back(tah);
+                }
+                tahX++;
+                tahY--;
+            }
+        }
+        tahX = zacatecniPoleX - 1 + 'A';
+        tahY = zacatecniPoleY - 1 + '1';
+        preskoceno = 0;
+        while (tahX>='A' && tahY>='1') {
+            if (pole[tahX-'A'][tahY-'1'].pole!=pole[zacatecniPoleX][zacatecniPoleY].pole && pole[tahX-'A'][tahY-'1'].pole!='.') {
+                if (preskoceno) break;
+                else {
+                    preskoceno = 1;
+                    tahX--;
+                    tahY--;
+                }
+            } else if (pole[tahX-'A'][tahY-'1'].pole==pole[zacatecniPoleX][zacatecniPoleY].pole) break;
+            else {
+                if (preskoceno) {
+                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                    mozneBraniPoTahu.push_back(tah);
+                }
+                tahX--;
+                tahY--;
+            }
+        }
+        tahX = zacatecniPoleX - 1 + 'A';
+        tahY = zacatecniPoleY + 1 + '1';
+        preskoceno = 0;
+        while (tahX>='A' && tahY<='8') {
+            if (pole[tahX-'A'][tahY-'1'].pole!=pole[zacatecniPoleX][zacatecniPoleY].pole && pole[tahX-'A'][tahY-'1'].pole!='.') {
+                if (preskoceno) break;
+                else {
+                    preskoceno = 1;
+                    tahX--;
+                    tahY++;
+                }
+            } else if (pole[tahX-'A'][tahY-'1'].pole==pole[zacatecniPoleX][zacatecniPoleY].pole) break;
+            else {
+                if (preskoceno) {
+                    string tah = string(1, puvodX)+puvodY+tahX+tahY;
+                    mozneBraniPoTahu.push_back(tah);
+                }
+                tahX--;
+                tahY++;
+            }
+        }
+    }
+    return mozneBraniPoTahu;
+}
+
+string pokracovaniTahu(vector<string> mozneBraniPoTahu, bool hrac) {
+    if (mozneBraniPoTahu.size()>1) {
+        // string volba;
+        // if (!hrac) {
+        //     cout << "Jak chcete pokračovat: " << endl;
+        //     for (string tah : mozneBraniPoTahu) {
+        //         cout << tah << "   ";
+        //     }
+        //     cout << endl;
+        //     cin >> volba;
+        //     for (string tah : mozneBraniPoTahu) {
+        //         if (volba==tah) {
+        //             return volba;
+        //         }
+        //     }
+        // } else {
+            int n = rand()%mozneBraniPoTahu.size();
+            return mozneBraniPoTahu[n];
+        // }
+    }
+    return mozneBraniPoTahu[0];
+}
+
+bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8], bool hrac) {
+    bool brani = 0;
+    int vyslednePoleX, vyslednePoleY;
+    int velikost = tah.size();
     for (int i=0;i<mozneTahy.size();i++) {
         if (tah==mozneTahy[i]) {
-            int puvodX = tah[0] - 'A';
-            int puvodY = tah[1]- '0' - 1;
-            int tahX = tah[2] - 'A';
-            int tahY = tah[3] - '0' - 1;
+            int puvodX = tah[velikost-4] - 'A';
+            int puvodY = tah[velikost-3]- '0' - 1;
+            int tahX = tah[velikost-2] - 'A';
+            int tahY = tah[velikost-1] - '0' - 1;
             if (pole[tahX][tahY].pole!='.') {
                 int posunX = tahX-puvodX;
                 int posunY = tahY-puvodY;
@@ -412,6 +552,9 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
                 pole[puvodX+2*posunX][puvodY+2*posunY].dama = pole[puvodX][puvodY].dama;
                 pole[tahX][tahY].pole='.';
                 pole[tahX][tahY].dama=0;
+                brani = 1;
+                vyslednePoleX = puvodX+2*posunX;
+                vyslednePoleY = puvodY+2*posunY;
             } else {
                 pole[tahX][tahY].pole = pole[puvodX][puvodY].pole;
                 pole[tahX][tahY].dama = pole[puvodX][puvodY].dama;
@@ -419,12 +562,25 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
             pole[puvodX][puvodY].pole = '.';
             pole[puvodX][puvodY].dama = 0;
             if (abs(puvodX-tahX)>1) {
-                int nasX, nasY;             // nasobice pohybu (smeru nahoru/dolu)
+                int nasX, nasY;             // nasobice pohybu (smeru nahoru/dolu a doleva/doprava)
                 nasX = (puvodX-tahX>0) ? -1 : 1;
                 nasY = (puvodY-tahY>0) ? -1 : 1;
                 for (int j=1;j<abs(puvodX-tahX);j++) {
                     if (pole[puvodX+j*nasX][puvodY+j*nasY].pole=='.') continue;
-                    if (pole[puvodX+j*nasX][puvodY+j*nasY].pole!=pole[puvodX][puvodY].pole) pole[puvodX+j*nasX][puvodY+j*nasY].pole = '.';
+                    if (pole[puvodX+j*nasX][puvodY+j*nasY].pole!=pole[puvodX][puvodY].pole) {
+                        pole[puvodX+j*nasX][puvodY+j*nasY].pole = '.';
+                        pole[puvodX+j*nasX][puvodY+j*nasY].dama = 0;
+                        brani = 1;
+                        vyslednePoleX = tahX;
+                        vyslednePoleY = tahY;
+                    }
+                }
+            }
+            if (brani) {
+                vector<string> vsechnyDalsiTahy = moznePokracovaniTahu(pole, vyslednePoleX, vyslednePoleY, hrac);
+                if (vsechnyDalsiTahy.size()>0) {
+                    string dalsiTah = pokracovaniTahu(vsechnyDalsiTahy, hrac);
+                    pohyb(dalsiTah, vsechnyDalsiTahy, pole, hrac);
                 }
             }
             return 1;
@@ -432,15 +588,6 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
     }
     std::cout << "Neplatný tah, hrajte znovu." << endl;
     return 0;
-}
-
-vector<string> mozneBraniPoTahu(string tah, pole pole[8][8]) {
-    vector<string> v = {};
-    int poleX = tah[2]-'A';
-    int poleY = tah[3]-'1';
-
-
-    return v;
 }
 
 void pocetFigur(pole pole[8][8]) {
@@ -491,8 +638,7 @@ vector<string> nejlepsiTahyVPozici(pole pole[8][8], int hloubka) {
             }
         }
 
-        bool platnyPohyb = pohyb(tah, tahy, simulacniPole);
-        if (platnyPohyb) hracVSimulaci = hracVSimulaci ? 0 : 1;
+        bool platnyPohyb = pohyb(tah, tahy, simulacniPole, hracVSimulaci);
 
         vyhoda = vyhodaVPozici(simulacniPole);
 
@@ -552,7 +698,7 @@ int gameLoop() {
             return 0;
         }
 
-        bool platnyTah = pohyb(tah, tahy, hraciPole);
+        bool platnyTah = pohyb(tah, tahy, hraciPole, aktualniHrac);
         if (platnyTah) aktualniHrac = (aktualniHrac?0:1);
         
         for (int i=0;i<8;i++) {
@@ -596,7 +742,7 @@ int gameSimulationLoop() {
             return -1;
         }
 
-        bool platnyTah = pohyb(tah, tahy, hraciPole);
+        bool platnyTah = pohyb(tah, tahy, hraciPole, aktualniHrac);
         if (platnyTah) aktualniHrac = (aktualniHrac?0:1);
         
         for (int i=0;i<8;i++) {
@@ -634,12 +780,12 @@ void simulaceHer(int hry) {
         if (procenta!=predeslaProcenta) {
             string pomlcky(procenta, '-');
             string tecky(100-procenta, '.');
-            std::cout << reset << pomlcky << tecky << ' ' << procenta << '%';
+            std::cout << reset << pomlcky << tecky << ' ' << procenta << " %";
         }
         predeslaProcenta = procenta;
     }
     string hotovo(100, '-');
-    std::cout << reset << hotovo << " 100%" << endl;
+    std::cout << reset << hotovo << " 100 %" << endl;
     platneHry = vyhryAlgoritmus + vyhryHrac;
     time_t konec = time(0);
     std::cout << konec - zacatek<< " s" << endl;
@@ -658,7 +804,7 @@ int main() {
         cin >> pocetHer;
         std::cout << "Začátek simulace";
         simulaceHer(pocetHer);
-    }
+    };
     cout << "Program skončil. ";
     return 1;
 }
