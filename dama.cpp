@@ -25,7 +25,7 @@ void vypsatHraciPole() {        // vypise pole do terminalu s teckami jako prazd
                 std::cout << "\033[1;32m";
             else if (hraciPole[i][j].figura == 'o')
                 std::cout << "\033[1;31m";
-            std::cout << hraciPole[i][j].figura << "\033[1;0m" << ' ';
+            std::cout << char(hraciPole[i][j].dama ? hraciPole[i][j].figura-('a'-'A') : hraciPole[i][j].figura) << "\033[1;0m" << ' ';
         }
         std::cout << endl;
         }
