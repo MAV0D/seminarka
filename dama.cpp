@@ -21,8 +21,11 @@ int bile, cerne;
 void vypsatHraciPole() {        // vypise pole do terminalu s teckami jako prazdnymi poli a O/X jako kameny
     for (int i=0;i<8;i++){
         for (int j=0;j<8;j++) {
-            if (hraciPole[i][j].dama) cout << char(hraciPole[i][j].figura-('a'-'A')) << ' ';
-            else std::cout << hraciPole[i][j].figura << ' ';
+            if (hraciPole[i][j].figura == 'x')
+                std::cout << "\033[1;32m";
+            else if (hraciPole[i][j].figura == 'o')
+                std::cout << "\033[1;31m";
+            std::cout << hraciPole[i][j].figura << "\033[1;0m" << ' ';
         }
         std::cout << endl;
         }
@@ -665,7 +668,7 @@ vector<string> nejlepsiTahyVPozici(pole pole[8][8], int hloubka) {
     return nejlepsiTahy;
 }
 
-int gameLoop() {
+int hraProtiAlgoritmu() {
     zakladniPoziceHracihoPole();
     do {
         vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
@@ -687,8 +690,7 @@ int gameLoop() {
         string tah;
         if (aktualniHrac==0)
             std::cin >> tah;
-        else 
-        {
+        else {
             hracVSimulaci = aktualniHrac;
             vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole, 1);
             int n = rand()%nejlepsiTahy.size();
@@ -714,6 +716,52 @@ int gameLoop() {
     if (bile == 0) std::cout << "Vyhral algoritmus." << endl;
     else if (cerne == 0) std::cout << "Vyhral hrac. Gratuluji." << endl;
     else std::cout << "Hra skoncila remizou." << endl;
+    return 1;
+}
+
+int hraDvouHracu() {
+    zakladniPoziceHracihoPole();
+    do {
+        vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
+
+        if (tahy.size()==0) {
+            (aktualniHrac==0?bile:cerne)=0;
+            break;
+        }
+
+        float vyhoda = vyhodaVPozici(hraciPole);
+        std::cout << fixed << setprecision(1) << vyhoda << endl;
+        for (string tah : tahy) 
+            std::cout << tah << "   ";
+        std::cout << endl;
+
+        vypsatHraciPole();
+        
+        bool platnyTah = 0;
+        do {
+            string tah;
+            std::cin >> tah;
+        
+            if (tah=="REMIZA") {
+                std::cout << "Hra skončila remízou. " << endl;
+                return 0;
+            }
+            platnyTah = pohyb(tah, tahy, hraciPole, aktualniHrac);
+        } while (!platnyTah);
+
+        aktualniHrac = (aktualniHrac?0:1);
+        
+        for (int i=0;i<8;i++) {
+            if (hraciPole[0][i].figura=='o') hraciPole[0][i].dama=1;
+            if (hraciPole[7][i].figura=='x') hraciPole[7][i].dama=1;
+        }
+        
+        pocetFigur(hraciPole);
+        
+    } while (bile > 0 && cerne > 0);
+    vypsatHraciPole();
+    if (bile == 0) std::cout << "Vyhrál algoritmus." << endl;
+    else if (cerne == 0) std::cout << "Vyhral hráč. Gratuluji." << endl;
     return 1;
 }
 
@@ -795,24 +843,34 @@ void simulaceHer(int hry) {
 
 int main() {
 
-    /*
     srand(time(0));
-    std::cout << "Vitejte. Chcete hrat proti algoritmu (1), nebo nechat algoritmy hrat proti sobe (2)? ";
+    bool platnaVolba = 0;
     int volba;
-    cin >> volba;
-    if (volba==1) gameLoop();
-    else if (volba==2) {
-        std::cout << "Kolik her chcete simulovat? ";
-        int pocetHer;
-        cin >> pocetHer;
-        std::cout << "Zacatek simulace";
-        simulaceHer(pocetHer);
-    };
-    */
-    hraciPole[0][0].figura = 'x';
-    hraciPole[0][0].dama = 1;
-    vypsatHraciPole();
-    cout << "Program skoncil. ";
+    do {
+        std::cout << "Vitejte. Chcete hrat proti algoritmu (1) nebo zahajit hru dvou hracu (2)? ";
+        std::cin >> volba;
+        switch (volba) {
+            case -1:
+                int pocetHer;
+                std::cout << "Kolik her chcete nasimulovat? " << endl;
+                std::cin >> pocetHer;
+                simulaceHer(pocetHer);
+                platnaVolba = 1;
+                break;
+            case 1:
+                hraProtiAlgoritmu();
+                platnaVolba = 1;
+                break;
+            case 2:
+                hraDvouHracu();
+                platnaVolba = 1;
+                break;
+            default:
+                std::cout << "Neplatna volba. Volbu zadejte ve forme cisla 1 nebo 2 a potvrdte entrem. ";
+                break;
+        }
+    } while (!platnaVolba);
     
+    std::cout << "Program skončil. ";
     return 1;
 }
