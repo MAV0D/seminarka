@@ -15,10 +15,9 @@ struct pole {
 
 pole hraciPole[8][8];
 pole simulacniPole[8][8];
-bool aktualniHrac=0;                    // 0 - bila, 1 - cerna
-bool hracVSimulaci=0;
+bool aktualniHrac=0, hracVSimulaci=0;                    // 0 - bila, 1 - cerna
 bool simulace = 0;
-int bile, cerne;
+int bile = 1, cerne = 1;
 
 void vypsatHraciPole() {        // vypise pole do terminalu s teckami jako prazdnymi poli a O/X jako kameny
     for (int i=0;i<8;i++){
@@ -656,7 +655,7 @@ vector<string> nejlepsiTahyVPozici(pole pole[8][8]) {
             }
         }
 
-        bool platnyPohyb = pohyb(tah, tahy, simulacniPole, hracVSimulaci);
+        pohyb(tah, tahy, simulacniPole, hracVSimulaci);
 
         vyhoda = vyhodaVPozici(simulacniPole);
 
@@ -682,6 +681,7 @@ vector<string> nejlepsiTahyVPozici(pole pole[8][8]) {
 }
 
 int hraProtiAlgoritmu() {
+    int stranaHrace = rand()%2;
     zakladniPoziceHracihoPole();
     do {
         vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
@@ -690,8 +690,7 @@ int hraProtiAlgoritmu() {
             (aktualniHrac==0?bile:cerne)=0;
             break;
         }
-        cout << "\033[2J\033[H";
-        if (aktualniHrac==0) {
+        if (aktualniHrac==stranaHrace) {
             float vyhoda = vyhodaVPozici(hraciPole);
             std::cout << fixed << setprecision(1) << vyhoda << endl;
             for (string tah : tahy) 
@@ -701,7 +700,7 @@ int hraProtiAlgoritmu() {
         }
         
         string tah;
-        if (aktualniHrac==0)
+        if (aktualniHrac==stranaHrace)
             std::cin >> tah;
         else {
             hracVSimulaci = aktualniHrac;
@@ -721,9 +720,7 @@ int hraProtiAlgoritmu() {
             if (hraciPole[0][i].figura=='o') hraciPole[0][i].dama=1;
             if (hraciPole[7][i].figura=='x') hraciPole[7][i].dama=1;
         }
-        
-        pocetFigur(hraciPole);
-        
+        cout << "\033[2J\033[H";
     } while (bile > 0 && cerne > 0);
     vypsatHraciPole();
     if (bile == 0) std::cout << "Vyhral algoritmus." << endl;
@@ -768,9 +765,6 @@ int hraDvouHracu() {
             if (hraciPole[0][i].figura=='o') hraciPole[0][i].dama=1;
             if (hraciPole[7][i].figura=='x') hraciPole[7][i].dama=1;
         }
-        
-        pocetFigur(hraciPole);
-        
     } while (bile > 0 && cerne > 0);
     vypsatHraciPole();
     if (bile == 0) std::cout << "Vyhrál algoritmus." << endl;
@@ -780,6 +774,7 @@ int hraDvouHracu() {
 
 int gameSimulationLoop() {
     zakladniPoziceHracihoPole();
+    bile = 1, cerne = 1;
     do {
         vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
 
@@ -804,18 +799,13 @@ int gameSimulationLoop() {
             return -1;
         }
 
-        bool platnyTah = pohyb(tah, tahy, hraciPole, aktualniHrac);
-        if (platnyTah) aktualniHrac = (aktualniHrac?0:1);
+        pohyb(tah, tahy, hraciPole, aktualniHrac);
+        aktualniHrac = (aktualniHrac?0:1);
         
         for (int i=0;i<8;i++) {
             if (hraciPole[0][i].figura=='o') hraciPole[0][i].dama=1;
-        }
-        for (int i=0;i<8;i++) {
             if (hraciPole[7][i].figura=='x') hraciPole[7][i].dama=1;
         }
-        
-        pocetFigur(hraciPole);
-        
     } while (bile > 0 && cerne > 0);
     if (cerne==0) return 1;
     else if (bile==0) return 2;
@@ -844,8 +834,8 @@ void simulaceHer(int hry) {
             string pomlcky(procenta, '-');
             string tecky(100-procenta, '.');
             std::cout << reset << pomlcky << tecky << ' ' << procenta << " %";
+            predeslaProcenta = procenta;
         }
-        predeslaProcenta = procenta;
     }
     string hotovo(100, '-');
     std::cout << reset << hotovo << " 100 %" << endl;
@@ -856,12 +846,12 @@ void simulaceHer(int hry) {
 }
 
 int main() {
-
     srand(time(0));
     bool platnaVolba = 0;
     int volba;
+    std::cout << "Vitejte. ";
     do {
-        std::cout << "Vitejte. Chcete hrat proti algoritmu (1) nebo zahajit hru dvou hracu (2)? ";
+        std::cout << "Chcete hrat proti algoritmu (1) nebo zahajit hru dvou hracu (2)? ";
         std::cin >> volba;
         switch (volba) {
             case -1:
@@ -885,6 +875,8 @@ int main() {
         }
     } while (!platnaVolba);
     
-    std::cout << "Program skončil. ";
+    std::cout << "Hra skončila. Pro ukonceni programu zmacknete enter...";
+    string vstup;
+    cin >> vstup;
     return 1;
 }
