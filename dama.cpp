@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ pole hraciPole[8][8];
 pole simulacniPole[8][8];
 bool aktualniHrac=0;                    // 0 - bila, 1 - cerna
 bool hracVSimulaci=0;
+bool simulace = 0;
 int bile, cerne;
 
 void vypsatHraciPole() {        // vypise pole do terminalu s teckami jako prazdnymi poli a O/X jako kameny
@@ -105,7 +107,7 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjisti vsec
                             }
                         }
                     }
-                }
+                } else
                 if (pole[i][j].figura=='o' && hrac == 1) {
                     if (pole[i-1][j-1].figura=='.') {
                         if (!mozneBrani && !mozneBraniDamou) {
@@ -519,25 +521,26 @@ vector<string> moznePokracovaniTahu(pole pole[8][8], int zacatecniPoleX, int zac
 
 string pokracovaniTahu(vector<string> mozneBraniPoTahu, bool hrac) {
     if (mozneBraniPoTahu.size()>1) {
-        // string volba;
-        // if (!hrac) {
-        //     cout << "Jak chcete pokracovat: " << endl;
-        //     for (string tah : mozneBraniPoTahu) {
-        //         cout << tah << "   ";
-        //     }
-        //     cout << endl;
-        //     cin >> volba;
-        //     for (string tah : mozneBraniPoTahu) {
-        //         if (volba==tah) {
-        //             return volba;
-        //         }
-        //     }
-        // } else {
+        string volba;
+        if (!simulace) {
+            while (1) {
+                cout << "Jak chcete pokracovat: " << endl;
+                for (string tah : mozneBraniPoTahu) {
+                    cout << tah << "   ";
+                }
+                cout << endl;
+                cin >> volba;
+                for (string tah : mozneBraniPoTahu) {
+                    if (volba==tah) {
+                        return volba;
+                    }
+                }
+            }
+        } else {
             int n = rand()%mozneBraniPoTahu.size();
             return mozneBraniPoTahu[n];
-        // }
-    }
-    return mozneBraniPoTahu[0];
+        }
+    } else return mozneBraniPoTahu[0];
 }
 
 bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8], bool hrac) {
@@ -583,6 +586,15 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8], bool hrac) {
             }
             if (brani) {
                 vector<string> vsechnyDalsiTahy = moznePokracovaniTahu(pole, vyslednePoleX, vyslednePoleY, hrac);
+                for (string dalsiTah : vsechnyDalsiTahy) {
+                    int delkaStr = dalsiTah.size();
+                    if (delkaStr>4){
+                        string opravenyDalsiTah = string(1, dalsiTah[delkaStr-4]) + dalsiTah[delkaStr-3] + dalsiTah[delkaStr-2] + dalsiTah[delkaStr-1];
+                        auto pozice = find(vsechnyDalsiTahy.begin(), vsechnyDalsiTahy.end(), dalsiTah);
+                        vsechnyDalsiTahy.erase(pozice);
+                        vsechnyDalsiTahy.emplace(pozice, opravenyDalsiTah);
+                    }
+                }
                 if (vsechnyDalsiTahy.size()>0) {
                     string dalsiTah = pokracovaniTahu(vsechnyDalsiTahy, hrac);
                     pohyb(dalsiTah, vsechnyDalsiTahy, pole, hrac);
@@ -592,6 +604,7 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8], bool hrac) {
         }
     }
     std::cout << "Neplatny tah, hrajte znovu." << endl;
+    vypsatHraciPole();
     return 0;
 }
 
@@ -629,7 +642,7 @@ float vyhodaVPozici(pole pole[8][8]) {
     return vyhoda;
 }
 
-vector<string> nejlepsiTahyVPozici(pole pole[8][8], int hloubka) {
+vector<string> nejlepsiTahyVPozici(pole pole[8][8]) {
     vector<string> nejlepsiTahy = {};
     float nejlepsiTah = !aktualniHrac ? -999 : 999;
     vector<string> tahy = mozneTahy(hraciPole, hracVSimulaci);
@@ -692,7 +705,7 @@ int hraProtiAlgoritmu() {
             std::cin >> tah;
         else {
             hracVSimulaci = aktualniHrac;
-            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole, 1);
+            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole);
             int n = rand()%nejlepsiTahy.size();
             tah = nejlepsiTahy[n];
         }
@@ -781,7 +794,7 @@ int gameSimulationLoop() {
             tah = tahy[n];
         } else {
             hracVSimulaci = aktualniHrac;
-            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole, 1);
+            vector<string> nejlepsiTahy = nejlepsiTahyVPozici(hraciPole);
             int n = rand()%nejlepsiTahy.size();
             tah = nejlepsiTahy[n];
         }
@@ -810,7 +823,8 @@ int gameSimulationLoop() {
 }
 
 void simulaceHer(int hry) {
-    int pocetSimulaci = hry; 
+    int pocetSimulaci = hry;
+    simulace = 1; 
 
     time_t zacatek = time(0);
     srand(time(0));
@@ -866,7 +880,7 @@ int main() {
                 platnaVolba = 1;
                 break;
             default:
-                std::cout << "Neplatna volba. Volbu zadejte ve forme cisla 1 nebo 2 a potvrdte entrem. ";
+                std::cout << "Neplatna volba. Volbu zadejte ve forme cisla 1 nebo 2 a potvrdte entrem. \n";
                 break;
         }
     } while (!platnaVolba);
