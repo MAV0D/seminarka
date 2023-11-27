@@ -20,13 +20,19 @@ bool simulace = 0;
 int bile = 1, cerne = 1;
 
 void vypsatHraciPole() {        // vypise pole do terminalu s teckami jako prazdnymi poli a O/X jako kameny
-    for (int i=0;i<8;i++){
-        for (int j=0;j<8;j++) {
-            if (hraciPole[i][j].figura == 'x')
-                std::cout << "\033[1;32m";
-            else if (hraciPole[i][j].figura == 'o')
-                std::cout << "\033[1;31m";
-            std::cout << char(hraciPole[i][j].dama ? hraciPole[i][j].figura-('a'-'A') : hraciPole[i][j].figura) << "\033[1;0m" << ' ';
+    for (int i=0;i<9;i++) {
+        if (i==0) {
+            cout << "  ";
+            for (int j=1;j<9;j++) cout << j << ' ';
+        } else {
+            cout << char(i+'A'-1) << ' ';
+            for (int j=1;j<9;j++) {
+                if (hraciPole[i-1][j-1].figura == 'x')
+                    std::cout << "\033[1;32m";
+                else if (hraciPole[i-1][j-1].figura == 'o')
+                    std::cout << "\033[1;31m";
+                std::cout << char(hraciPole[i-1][j-1].dama ? hraciPole[i-1][j-1].figura-('a'-'A') : hraciPole[i-1][j-1].figura) << "\033[1;0m" << ' ';
+            }
         }
         std::cout << endl;
         }
@@ -404,7 +410,7 @@ vector<string> mozneTahy(pole pole[8][8], bool hrac) {            // zjisti vsec
     return mozneTahy;
 }
 
-vector<string> moznePokracovaniTahu(pole pole[8][8], int zacatecniPoleX, int zacatecniPoleY, bool hrac) {
+vector<string> moznePokracovaniTahu(pole pole[8][8], int zacatecniPoleX, int zacatecniPoleY) {
     vector<string> mozneBraniPoTahu;
     string tah;
     if (!pole[zacatecniPoleX][zacatecniPoleY].dama) {
@@ -518,7 +524,7 @@ vector<string> moznePokracovaniTahu(pole pole[8][8], int zacatecniPoleX, int zac
     return mozneBraniPoTahu;
 }
 
-string pokracovaniTahu(vector<string> mozneBraniPoTahu, bool hrac) {
+string pokracovaniTahu(vector<string> mozneBraniPoTahu) {
     if (mozneBraniPoTahu.size()>1) {
         string volba;
         if (!simulace) {
@@ -542,7 +548,7 @@ string pokracovaniTahu(vector<string> mozneBraniPoTahu, bool hrac) {
     } else return mozneBraniPoTahu[0];
 }
 
-bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8], bool hrac) {
+bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8]) {
     bool brani = 0;
     int vyslednePoleX, vyslednePoleY;
     int velikost = tah.size();
@@ -584,7 +590,7 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8], bool hrac) {
                 }
             }
             if (brani) {
-                vector<string> vsechnyDalsiTahy = moznePokracovaniTahu(pole, vyslednePoleX, vyslednePoleY, hrac);
+                vector<string> vsechnyDalsiTahy = moznePokracovaniTahu(pole, vyslednePoleX, vyslednePoleY);
                 for (string dalsiTah : vsechnyDalsiTahy) {
                     int delkaStr = dalsiTah.size();
                     if (delkaStr>4){
@@ -595,29 +601,15 @@ bool pohyb(string tah, vector<string> mozneTahy, pole pole[8][8], bool hrac) {
                     }
                 }
                 if (vsechnyDalsiTahy.size()>0) {
-                    string dalsiTah = pokracovaniTahu(vsechnyDalsiTahy, hrac);
-                    pohyb(dalsiTah, vsechnyDalsiTahy, pole, hrac);
+                    string dalsiTah = pokracovaniTahu(vsechnyDalsiTahy);
+                    pohyb(dalsiTah, vsechnyDalsiTahy, pole);
                 }
             }
             return 1;
         }
     }
     std::cout << "Neplatny tah, hrajte znovu." << endl;
-    vypsatHraciPole();
     return 0;
-}
-
-void pocetFigur(pole pole[8][8]) {
-    bile = 0;
-    cerne = 0;
-    for (int i=0;i<8;i++) {
-        for (int j=0;j<8;j++) {
-            if (pole[i][j].figura != '.') {
-                if (pole[i][j].figura == 'x') bile++;
-                else cerne++;
-            }
-        }
-    }
 }
 
 float vyhodaVPozici(pole pole[8][8]) {
@@ -627,14 +619,17 @@ float vyhodaVPozici(pole pole[8][8]) {
             float vyhodaZPole = 0.0;
             if (pole[i][j].figura=='x' && !pole[i][j].dama) {
                 vyhodaZPole = 1 + 0.1 * (i+1);
+                if (j==7 || j==0) vyhodaZPole +=0.5;
             } else if (pole[i][j].figura=='x' && pole[i][j].dama) {
                 vyhodaZPole = 3;
+                if (j==7 || j==0) vyhodaZPole +=0.7;
             } else if (pole[i][j].figura=='o' && !pole[i][j].dama) {
                 vyhodaZPole = -(1 + 0.1 * (7-i+1));
+                if (j==7 || j==0) vyhodaZPole -=0.5;
             } else if (pole[i][j].figura=='o' && pole[i][j].dama) {
                 vyhodaZPole = -3;
+                if (j==7 || j==0) vyhodaZPole -=0.7;
             }
-            vyhodaZPole = round(vyhodaZPole*10)/10.0;
             vyhoda += vyhodaZPole;
         }
     }
@@ -655,7 +650,7 @@ vector<string> nejlepsiTahyVPozici(pole pole[8][8]) {
             }
         }
 
-        pohyb(tah, tahy, simulacniPole, hracVSimulaci);
+        pohyb(tah, tahy, simulacniPole);
 
         vyhoda = vyhodaVPozici(simulacniPole);
 
@@ -683,9 +678,10 @@ vector<string> nejlepsiTahyVPozici(pole pole[8][8]) {
 int hraProtiAlgoritmu() {
     int stranaHrace = rand()%2;
     zakladniPoziceHracihoPole();
+    vypsatHraciPole();
     do {
         vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
-
+        simulace = !(stranaHrace==aktualniHrac);
         if (tahy.size()==0) {
             (aktualniHrac==0?bile:cerne)=0;
             break;
@@ -713,7 +709,7 @@ int hraProtiAlgoritmu() {
             return 0;
         }
 
-        bool platnyTah = pohyb(tah, tahy, hraciPole, aktualniHrac);
+        bool platnyTah = pohyb(tah, tahy, hraciPole);
         if (platnyTah) aktualniHrac = (aktualniHrac?0:1);
         
         for (int i=0;i<8;i++) {
@@ -731,6 +727,8 @@ int hraProtiAlgoritmu() {
 
 int hraDvouHracu() {
     zakladniPoziceHracihoPole();
+    vypsatHraciPole();
+    simulace = 0;
     do {
         vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
 
@@ -756,7 +754,7 @@ int hraDvouHracu() {
                 std::cout << "Hra skončila remízou. " << endl;
                 return 0;
             }
-            platnyTah = pohyb(tah, tahy, hraciPole, aktualniHrac);
+            platnyTah = pohyb(tah, tahy, hraciPole);
         } while (!platnyTah);
 
         aktualniHrac = (aktualniHrac?0:1);
@@ -774,6 +772,7 @@ int hraDvouHracu() {
 
 int gameSimulationLoop() {
     zakladniPoziceHracihoPole();
+    vypsatHraciPole();
     bile = 1, cerne = 1;
     do {
         vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
@@ -799,7 +798,7 @@ int gameSimulationLoop() {
             return -1;
         }
 
-        pohyb(tah, tahy, hraciPole, aktualniHrac);
+        pohyb(tah, tahy, hraciPole);
         aktualniHrac = (aktualniHrac?0:1);
         
         for (int i=0;i<8;i++) {
@@ -814,16 +813,16 @@ int gameSimulationLoop() {
 
 void simulaceHer(int hry) {
     int pocetSimulaci = hry;
-    simulace = 1; 
+    simulace = 1;
 
-    time_t zacatek = time(0);
+    clock_t zacatek = clock();
     srand(time(0));
     int platneHry = 0;
     int vyhryHrac = 0;
     int vyhryAlgoritmus = 0;
 
     int procenta, predeslaProcenta;
-    string reset(104, '\b');
+    string reset(200, '\b');
 
     for (int i=0;i<pocetSimulaci;i++) {
         int vysledek = gameSimulationLoop();
@@ -840,8 +839,8 @@ void simulaceHer(int hry) {
     string hotovo(100, '-');
     std::cout << reset << hotovo << " 100 %" << endl;
     platneHry = vyhryAlgoritmus + vyhryHrac;
-    time_t konec = time(0);
-    std::cout << konec - zacatek<< " s" << endl;
+    clock_t konec = clock();
+    std::cout << float(konec - zacatek)/1000 << " s" << endl;
     std::cout << "Vyhry hrace: " << vyhryHrac << endl << "Vyhry algoritmu: " << vyhryAlgoritmus << endl << platneHry << endl;
 }
 
@@ -875,8 +874,8 @@ int main() {
         }
     } while (!platnaVolba);
     
-    std::cout << "Hra skončila. Pro ukonceni programu zmacknete enter...";
-    string vstup;
-    cin >> vstup;
+    std::cout << "Hra skoncila. Pro ukonceni programu zmacknete enter...\n";
+    fgetc(stdin);
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return 1;
 }
