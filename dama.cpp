@@ -772,7 +772,6 @@ int hraDvouHracu() {
 
 int gameSimulationLoop() {
     zakladniPoziceHracihoPole();
-    vypsatHraciPole();
     bile = 1, cerne = 1;
     do {
         vector<string> tahy = mozneTahy(hraciPole, aktualniHrac);
@@ -873,9 +872,5 @@ int main() {
                 break;
         }
     } while (!platnaVolba);
-    
-    std::cout << "Hra skoncila. Pro ukonceni programu zmacknete enter...\n";
-    fgetc(stdin);
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return 1;
 }
